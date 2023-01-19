@@ -1,5 +1,4 @@
 #pragma once
-#include <cassert>
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
@@ -33,22 +32,22 @@ namespace dae
 		const float minPitch{ -89.99f * TO_RADIANS };
 		const float maxPitch{ 89.99f * TO_RADIANS };
 
-		int speed{ 10 };
-		float speedRot{ 50 * TO_RADIANS };
+		const float speed{ 10 };
+		const float speedRot{ 50 * TO_RADIANS };
 
 		Matrix invViewMatrix{};
 		Matrix viewMatrix{};
 		Matrix projectionMatrix{};
 
-		const int sprintSpeedMultiplier{ 3 };
+		const float sprintSpeedMultiplier{ 3 };
 
-		void Initialize(float aspecRatio, float _fovAngle = 90.f, Vector3 _origin = {0.f,0.f,0.f})
+		void Initialize(const float _aspecRatio, const float _fovAngle = 90.f, const Vector3 _origin = {0.f,0.f,0.f})
 		{
 			fovAngle = _fovAngle;
 
 			fov = tanf((fovAngle * TO_RADIANS) / 2.f);
 
-			aspectRatio = aspecRatio;
+			aspectRatio = _aspecRatio;
 
 			origin = _origin;
 
@@ -94,10 +93,10 @@ namespace dae
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
-			float moveSpeed{ speed * deltaTime };
-			float rotSpeed{ speedRot * deltaTime };
+			float moveSpeed{ deltaTime * speed };
+			const float rotSpeed{ deltaTime * speedRot };
 
-			moveSpeed = (pKeyboardState[SDL_SCANCODE_LSHIFT] * (sprintSpeedMultiplier) * moveSpeed) + moveSpeed;
+			moveSpeed = (static_cast<float>(pKeyboardState[SDL_SCANCODE_LSHIFT]) * (sprintSpeedMultiplier) * moveSpeed) + moveSpeed;
 
 			origin += (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP]) * forward * moveSpeed;
 			origin -= (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN]) * forward * moveSpeed;
@@ -108,25 +107,26 @@ namespace dae
 			origin -= pKeyboardState[SDL_SCANCODE_Q] * up * moveSpeed;
 			origin += pKeyboardState[SDL_SCANCODE_E] * up * moveSpeed;
 
-			bool lmb = mouseState == SDL_BUTTON_LMASK;
-			bool rmb = mouseState == SDL_BUTTON_RMASK;
+			const float lmb { static_cast<float>(mouseState == SDL_BUTTON_LMASK) };
+			const float rmb { static_cast<float>(mouseState == SDL_BUTTON_RMASK) };
 
-			bool lrmb = mouseState == (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK);
+			const float lrmb{ static_cast<float>(mouseState == (SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) };
 
-			origin -= lmb * forward * moveSpeed * float(mouseY);
-			origin -= lrmb * up * (moveSpeed / 3) * float(mouseY);
+			const float fMouseY { static_cast<float>(mouseY) };
+			const float fMouseX { static_cast<float>(mouseX) };
 
-			totalPitch -= rmb * rotSpeed * mouseY;
+			origin -= lmb * forward * moveSpeed * fMouseY;
+			origin -= lrmb * up * (moveSpeed / 3) * fMouseY;
+
+			totalPitch -= rmb * rotSpeed * fMouseY;
 			totalPitch = std::clamp(totalPitch, minPitch, maxPitch);
 
-			totalYaw += lmb * rotSpeed * mouseX;
-			totalYaw += rmb * rotSpeed * mouseX;
+			totalYaw += lmb * rotSpeed * fMouseX;
+			totalYaw += rmb * rotSpeed * fMouseX;
 
 			forward = (Matrix::CreateRotationX(totalPitch) * Matrix::CreateRotationY(totalYaw)).TransformVector(Vector3::UnitZ);
 
 			CalculateViewMatrix();
-
-			//Try to optimize this - should only be called once or when fov/aspectRatio changes
 		}
 	};
 }

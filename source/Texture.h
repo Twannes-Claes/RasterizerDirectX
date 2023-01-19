@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL_surface.h>
 #include <string>
-#include "ColorRGB.h"
-#include "Vector3.h"
+//#include "ColorRGB.h"
+//#include "Vector3.h"
 
 namespace dae
 {

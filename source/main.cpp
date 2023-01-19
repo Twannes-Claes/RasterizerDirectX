@@ -24,8 +24,8 @@ int main(int argc, char* args[])
 	//Create window + surfaces
 	SDL_Init(SDL_INIT_VIDEO);
 
-	const uint32_t width = 640;
-	const uint32_t height = 480;
+	constexpr uint32_t width = 640;
+	constexpr uint32_t height = 480;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
 		"DirectX - Twannes_Claes/2DAE15",

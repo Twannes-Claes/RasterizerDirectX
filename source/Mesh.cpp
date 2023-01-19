@@ -83,9 +83,11 @@ namespace dae
 	{
 		if (m_pIndexBuffer) m_pIndexBuffer->Release();
 
+		if (m_pVertexBuffer) m_pVertexBuffer->Release();
+
 		if (m_pInputLayout) m_pInputLayout->Release();
 
-		if (m_pVertexBuffer) m_pVertexBuffer->Release();
+		if (m_pTechnique) m_pTechnique->Release();
 
 		delete m_pEffect;
 	}

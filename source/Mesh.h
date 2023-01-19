@@ -1,6 +1,6 @@
 #pragma once
 #include "Vector3.h"
-#include "ColorRGB.h"
+//#include "ColorRGB.h"
 #include "Effect.h"
 
 
@@ -33,42 +33,42 @@ namespace dae
 
 		void Render(ID3D11DeviceContext* pDeviceContext) const;
 
-		void SetProjectionMatrix(const Matrix& matrix)
+		void SetProjectionMatrix(const Matrix& matrix) const
 		{
 			m_pEffect->SetProjectionMatrix(m_WorldMatrix * matrix);
 		}
 
-		void SetDiffuse(const Texture* pTexture)
+		void SetDiffuse(const Texture* pTexture) const
 		{
 			m_pEffect->SetDiffuseMap(pTexture);
 		}
 
-		void SetNormal(const Texture* pTexture)
+		void SetNormal(const Texture* pTexture) const
 		{
 			m_pEffect->SetNormalMap(pTexture);
 		}
 
-		void SetSpecular(const Texture* pTexture)
+		void SetSpecular(const Texture* pTexture) const 
 		{
 			m_pEffect->SetSpecularMap(pTexture);
 		}
 
-		void SetGlossiness(const Texture* pTexture)
+		void SetGlossiness(const Texture* pTexture) const
 		{
 			m_pEffect->SetGlossinessMap(pTexture);
 		}
 
-		void SetWorldMatrix()
+		void SetWorldMatrix() const
 		{
 			m_pEffect->SetWorldMatrix(m_WorldMatrix);
 		}
 
-		void SetInvViewMatrix(const Matrix& invViewMatrix)
+		void SetInvViewMatrix(const Matrix& invViewMatrix) const
 		{
 			m_pEffect->SetInvViewMatrix(invViewMatrix);
 		}
 
-		void ToggleSamplerState(ID3D11Device* pDevice)
+		void ToggleSamplerState(ID3D11Device* pDevice) const
 		{
 			m_pEffect->ToggleSamplerState(pDevice);
 		}

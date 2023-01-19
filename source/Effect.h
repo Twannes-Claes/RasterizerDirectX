@@ -30,24 +30,25 @@ namespace dae
 		{
 			return m_pEffect;
 		}
+
 		ID3DX11EffectTechnique* GetTechnique() const
 		{
 			return m_pTechnique;
 		}
 
-		void SetProjectionMatrix(const Matrix& matrix);
+		void SetProjectionMatrix(const Matrix& matrix) const;
 
-		void SetDiffuseMap(const Texture* pTexture);
+		void SetDiffuseMap(const Texture* pTexture) const;
 
-		void SetNormalMap(const Texture* pTexture);
+		void SetNormalMap(const Texture* pTexture) const;
 
-		void SetSpecularMap(const Texture* pTexture);
+		void SetSpecularMap(const Texture* pTexture) const;
 
-		void SetGlossinessMap(const Texture* pTexture);
+		void SetGlossinessMap(const Texture* pTexture) const;
 
-		void SetWorldMatrix(const Matrix& worldMatrix);
+		void SetWorldMatrix(const Matrix& worldMatrix) const;
 
-		void SetInvViewMatrix(const Matrix& invViewMatrix);
+		void SetInvViewMatrix(const Matrix& invViewMatrix) const;
 
 		void ToggleSamplerState(ID3D11Device* pDevice, const bool changeState = true)
 		{
@@ -77,15 +78,13 @@ namespace dae
 						m_SamplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 					}
 					break;
-				default:
-					break;
+				//default:
+				//	break;
 			}
 
 			if (m_pSamplerState) m_pSamplerState->Release();
 
-			HRESULT result{ pDevice->CreateSamplerState(&m_SamplerDesc, &m_pSamplerState) };
-
-			if (FAILED(result)) return;
+			if (const HRESULT result{ pDevice->CreateSamplerState(&m_SamplerDesc, &m_pSamplerState) }; FAILED(result)) return;
 
 			m_pEffectSamplerVariable->SetSampler(0, m_pSamplerState);
 		}

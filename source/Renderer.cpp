@@ -35,7 +35,7 @@ namespace dae {
 
 		m_pMesh = std::make_unique<Mesh>( m_pDevice, vertices, indices );
 
-		Texture* pTexture{ Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice) };
+		const Texture* pTexture{ Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice) };
 
 		m_pMesh->SetDiffuse(pTexture);
 
@@ -59,7 +59,7 @@ namespace dae {
 
 		delete pTexture;
 
-		const float aspectRatio = static_cast<float>(m_Width) / m_Height;
+		const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
 		m_pCamera = std::make_unique<Camera>();
 
@@ -87,7 +87,7 @@ namespace dae {
 		if (m_pDevice) m_pDevice->Release();
 	}
 
-	void Renderer::Update(const Timer* pTimer)
+	void Renderer::Update(const Timer* pTimer) const
 	{
 
 		m_pCamera->Update(pTimer);
@@ -108,7 +108,7 @@ namespace dae {
 		if (!m_IsInitialized) return;
 
 		//1. Clear RTV & DSV
-		ColorRGB clearColor{ 0.f, 0.f, .3f };
+		constexpr ColorRGB clearColor{ 0.f, 0.f, .3f };
 		m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, &clearColor.r);
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
@@ -135,7 +135,7 @@ namespace dae {
 
 		HRESULT result{
 			D3D11CreateDevice(
-				nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featureLevel,
+				nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, &featureLevel,
 				1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext
 			)
 		};

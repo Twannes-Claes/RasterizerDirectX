@@ -15,7 +15,7 @@ namespace dae
 	class Renderer final
 	{
 	public:
-		Renderer(SDL_Window* pWindow);
+		explicit Renderer(SDL_Window* pWindow);
 		~Renderer();
 
 		Renderer(const Renderer&) = delete;
@@ -23,7 +23,7 @@ namespace dae
 		Renderer& operator=(const Renderer&) = delete;
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
-		void Update(const Timer* pTimer);
+		void Update(const Timer* pTimer) const;
 		void Render() const;
 
 		void ToggleCameraLock()
@@ -33,7 +33,7 @@ namespace dae
 			SDL_SetRelativeMouseMode(static_cast<SDL_bool>(m_IsCamLocked));
 		}
 
-		void ToggleSampleState()
+		void ToggleSampleState() const
 		{
 			m_pMesh->ToggleSamplerState(m_pDevice);
 		}

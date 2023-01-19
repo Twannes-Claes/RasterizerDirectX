@@ -86,6 +86,25 @@ dae::Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 dae::Effect::~Effect()
 {
 	if (m_pSamplerState) m_pSamplerState->Release();
+
+	if (m_pEffectSamplerVariable) m_pEffectSamplerVariable->Release();
+
+	if (m_pGlossinessMapVariable) m_pGlossinessMapVariable->Release();
+
+	if (m_pSpecularMapVariable) m_pSpecularMapVariable->Release();
+
+	if (m_pNormalMapVariable) m_pNormalMapVariable->Release();
+
+	if (m_pDiffuseMapVariable) m_pDiffuseMapVariable->Release();
+
+	if (m_pMatInverseViewMatrixVariable) m_pMatInverseViewMatrixVariable->Release();
+
+	if (m_pMatWorldMatrixVariable) m_pMatWorldMatrixVariable->Release();
+
+	if (m_pMatWorldViewProjVariable) m_pMatWorldViewProjVariable->Release();
+
+	if (m_pTechnique) m_pTechnique->Release();
+
 	if (m_pEffect) m_pEffect->Release();
 }
 
@@ -143,23 +162,12 @@ ID3DX11Effect* dae::Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring
 	return pEffect;
 }
 
-void dae::Effect::SetProjectionMatrix(const Matrix& matrix)
+void dae::Effect::SetProjectionMatrix(const Matrix& matrix) const
 {
-
-	/*static const int size{ 16 };
-
-	float matrixArray[size]{};
-
-	for (int i{}; i < size; ++i)
-	{
-		matrixArray[i] = matrix[i / 4][i % 4];
-	}*/
-
 	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
-
 }
 
-void dae::Effect::SetDiffuseMap(const Texture* pTexture)
+void dae::Effect::SetDiffuseMap(const Texture* pTexture) const
 {
 
 	if (m_pDiffuseMapVariable == nullptr) return;
@@ -168,33 +176,33 @@ void dae::Effect::SetDiffuseMap(const Texture* pTexture)
 
 }
 
-void dae::Effect::SetNormalMap(const Texture* pTexture)
+void dae::Effect::SetNormalMap(const Texture* pTexture) const
 {
 	if (m_pNormalMapVariable == nullptr) return;
 
 	m_pNormalMapVariable->SetResource(pTexture->GetSRV());
 }
 
-void dae::Effect::SetSpecularMap(const Texture* pTexture)
+void dae::Effect::SetSpecularMap(const Texture* pTexture) const
 {
 	if (m_pSpecularMapVariable == nullptr) return;
 
 	m_pSpecularMapVariable->SetResource(pTexture->GetSRV());
 }
 
-void dae::Effect::SetGlossinessMap(const Texture* pTexture)
+void dae::Effect::SetGlossinessMap(const Texture* pTexture) const
 {
 	if (m_pGlossinessMapVariable == nullptr) return;
 
 	m_pGlossinessMapVariable->SetResource(pTexture->GetSRV());
 }
 
-void dae::Effect::SetWorldMatrix(const Matrix& worldMatrix)
+void dae::Effect::SetWorldMatrix(const Matrix& worldMatrix) const
 {
 	m_pMatWorldMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
 }
 
-void dae::Effect::SetInvViewMatrix(const Matrix& invViewMatrix)
+void dae::Effect::SetInvViewMatrix(const Matrix& invViewMatrix) const
 {
 	m_pMatInverseViewMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&invViewMatrix));
 }
