@@ -5,13 +5,13 @@
 namespace dae
 {
 	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-		: m_pEffect{ new Effect{ pDevice, L"Resources/PosCol3D.fx" } }
+		: m_pEffect{ new Effect{ pDevice, L"Resources/PosTex3D.fx" } }
 	{
 		//Get Technique from Effect
 		m_pTechnique = m_pEffect->GetTechnique();
 
 		//Create Vertex Layout
-		static constexpr uint32_t numElements{ 2 };
+		static constexpr uint32_t numElements{ 4 };
 		D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 		vertexDesc[0].SemanticName = "POSITION";
@@ -19,10 +19,20 @@ namespace dae
 		vertexDesc[0].AlignedByteOffset = 0;
 		vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-		vertexDesc[1].SemanticName = "COLOR";
+		vertexDesc[1].SemanticName = "NORMAL";
 		vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		vertexDesc[1].AlignedByteOffset = 12;
 		vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[2].SemanticName = "TANGENT";
+		vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		vertexDesc[2].AlignedByteOffset = 24;
+		vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+		vertexDesc[3].SemanticName = "TEXCOORD";
+		vertexDesc[3].Format = DXGI_FORMAT_R32G32_FLOAT;
+		vertexDesc[3].AlignedByteOffset = 36;
+		vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 		//Create Input Layout
 		D3DX11_PASS_DESC passDesc{};
@@ -104,4 +114,5 @@ namespace dae
 			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 		}
 	}
+
 }

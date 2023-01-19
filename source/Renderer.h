@@ -4,10 +4,13 @@ struct SDL_Window;
 struct SDL_Surface;
 
 #include <memory>
+#include "Camera.h"
+#include "Mesh.h"
 
 namespace dae
 {
-	class Mesh;
+	//class Mesh;
+	struct Camera;
 
 	class Renderer final
 	{
@@ -23,6 +26,18 @@ namespace dae
 		void Update(const Timer* pTimer);
 		void Render() const;
 
+		void ToggleCameraLock()
+		{
+			m_IsCamLocked = !m_IsCamLocked;
+
+			SDL_SetRelativeMouseMode(static_cast<SDL_bool>(m_IsCamLocked));
+		}
+
+		void ToggleSampleState()
+		{
+			m_pMesh->ToggleSamplerState(m_pDevice);
+		}
+
 	private:
 
 		SDL_Window* m_pWindow{};
@@ -32,10 +47,13 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
+		bool m_IsCamLocked{ true };
+
 		//DIRECTX
 		HRESULT InitializeDirectX();
 
 		std::unique_ptr<Mesh> m_pMesh{};
+		std::unique_ptr<Camera> m_pCamera{};
 
 		ID3D11Device* m_pDevice{};
 		ID3D11DeviceContext* m_pDeviceContext{};
@@ -44,6 +62,8 @@ namespace dae
 		ID3D11DepthStencilView* m_pDepthStencilView{};
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
+
+		float m_RotationSpeed{ 90 * TO_RADIANS };
 
 	};
 }

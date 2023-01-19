@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Mesh.h"
+#include "Texture.h"
+#include "Utils.h"
 
 namespace dae {
 
@@ -12,9 +14,11 @@ namespace dae {
 
 		//Initialize DirectX pipeline
 		const HRESULT result = InitializeDirectX();
+
 		if (result == S_OK)
 		{
 			m_IsInitialized = true;
+
 			std::cout << "DirectX is initialized and ready!\n";
 		}
 		else
@@ -23,14 +27,47 @@ namespace dae {
 		}
 
 		//initialize mesh data & mesh
-		const std::vector<Vertex> vertices{
-			{{ 0.f, .5f, .5f }, { 1.f, 0.f, 0.f }},
-			{{ .5f, -.5f, .5f }, { 0.f, 0.f, 1.f }},
-			{{ -.5f, -.5f, .5f }, { 0.f, 1.f, 0.f }},
-		};
-		const std::vector<uint32_t> indices{ 0, 1, 2 };
+
+		std::vector<Vertex> vertices{};
+		std::vector<uint32_t> indices{};
+
+		Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices);
 
 		m_pMesh = std::make_unique<Mesh>( m_pDevice, vertices, indices );
+
+		Texture* pTexture{ Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice) };
+
+		m_pMesh->SetDiffuse(pTexture);
+
+		delete pTexture;
+
+		pTexture = Texture::LoadFromFile("Resources/vehicle_normal.png", m_pDevice);
+
+		m_pMesh->SetNormal(pTexture);
+
+		delete pTexture;
+
+		pTexture = Texture::LoadFromFile("Resources/vehicle_specular.png", m_pDevice);
+
+		m_pMesh->SetSpecular(pTexture);
+
+		delete pTexture;
+
+		pTexture = Texture::LoadFromFile("Resources/vehicle_gloss.png", m_pDevice);
+
+		m_pMesh->SetGlossiness(pTexture);
+
+		delete pTexture;
+
+		const float aspectRatio = static_cast<float>(m_Width) / m_Height;
+
+		m_pCamera = std::make_unique<Camera>();
+
+		m_pCamera->Initialize(aspectRatio, 45, Vector3{ 0, 0, -50 });
+
+		SDL_SetRelativeMouseMode(static_cast<SDL_bool>(m_IsCamLocked));
+
+
 	}
 
 	Renderer::~Renderer()
@@ -53,11 +90,21 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 
+		m_pCamera->Update(pTimer);
+
+
+		m_pMesh->SetProjectionMatrix(m_pCamera->viewMatrix * m_pCamera->projectionMatrix);
+		m_pMesh->SetWorldMatrix();
+		m_pMesh->SetInvViewMatrix(m_pCamera->invViewMatrix);
+
+		m_pMesh->SetRotationY(m_RotationSpeed * pTimer->GetElapsed());
+
 	}
 
 
 	void Renderer::Render() const
 	{
+
 		if (!m_IsInitialized) return;
 
 		//1. Clear RTV & DSV

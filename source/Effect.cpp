@@ -1,21 +1,95 @@
 #include "pch.h"
 #include "Effect.h"
+#include "Texture.h"
 
-Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
+dae::Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	: m_pEffect{ LoadEffect(pDevice, assetFile) }
 {
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 
-	if (!m_pTechnique->IsValid()) std::wcout << L"Technique not valid!\n";
+	if (!m_pTechnique->IsValid())
+	{
+		std::wcout << L"Technique not valid!\n";
+	}
+
+	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProj")->AsMatrix();
+
+	if (!m_pMatWorldViewProjVariable->IsValid())
+	{
+		std::wcout << L"m_pMatWorldViewProjVariable not valid!\n";
+	}
+
+	m_pMatWorldMatrixVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+
+	if (!m_pMatWorldMatrixVariable->IsValid())
+	{
+		std::wcout << L"m_pMatWorldMatrixVariable not valid!\n";
+	}
+
+	m_pMatInverseViewMatrixVariable = m_pEffect->GetVariableByName("gInverseViewMatrix")->AsMatrix();
+
+	if (!m_pMatInverseViewMatrixVariable->IsValid())
+	{
+		std::wcout << L"m_pMatInverseViewMatrixVariable not valid!\n";
+	}
+
+	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
+
+	if (!m_pDiffuseMapVariable->IsValid())
+	{
+		std::wcout << L"m_pDiffuseMapVariable not valid!\n";
+	}
+
+	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
+
+	if (!m_pNormalMapVariable->IsValid())
+	{
+		std::wcout << L"m_pNormalMapVariable not valid!\n";
+	}
+
+	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
+
+	if (!m_pSpecularMapVariable->IsValid())
+	{
+		std::wcout << L"m_pSpecularMapVariable not valid!\n";
+	}
+
+	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
+
+	if (!m_pGlossinessMapVariable->IsValid())
+	{
+		std::wcout << L"m_pGlossinessMapVariable not valid!\n";
+	}
+
+	m_pEffectSamplerVariable = m_pEffect->GetVariableByName("gSampler")->AsSampler();
+
+	if (!m_pEffectSamplerVariable->IsValid())
+	{
+		std::wcout << L"m_pEffectSamplerVariable not valid!\n";
+	}
+
+	m_SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	m_SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	m_SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	m_SamplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	m_SamplerDesc.MipLODBias = 0;
+	m_SamplerDesc.MinLOD = 0;
+
+	m_SamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	m_SamplerDesc.MaxAnisotropy = 16;
+
+	ToggleSamplerState(pDevice, false);
+
 }
 
-Effect::~Effect()
+dae::Effect::~Effect()
 {
-	if (m_pTechnique) m_pTechnique->Release();
+	if (m_pSamplerState) m_pSamplerState->Release();
 	if (m_pEffect) m_pEffect->Release();
 }
 
-ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
+ID3DX11Effect* dae::Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
 	HRESULT result;
 	ID3D10Blob* pErrorBlob{ nullptr };
@@ -67,4 +141,60 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& ass
 	}
 
 	return pEffect;
+}
+
+void dae::Effect::SetProjectionMatrix(const Matrix& matrix)
+{
+
+	/*static const int size{ 16 };
+
+	float matrixArray[size]{};
+
+	for (int i{}; i < size; ++i)
+	{
+		matrixArray[i] = matrix[i / 4][i % 4];
+	}*/
+
+	m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&matrix));
+
+}
+
+void dae::Effect::SetDiffuseMap(const Texture* pTexture)
+{
+
+	if (m_pDiffuseMapVariable == nullptr) return;
+
+	m_pDiffuseMapVariable->SetResource(pTexture->GetSRV());
+
+}
+
+void dae::Effect::SetNormalMap(const Texture* pTexture)
+{
+	if (m_pNormalMapVariable == nullptr) return;
+
+	m_pNormalMapVariable->SetResource(pTexture->GetSRV());
+}
+
+void dae::Effect::SetSpecularMap(const Texture* pTexture)
+{
+	if (m_pSpecularMapVariable == nullptr) return;
+
+	m_pSpecularMapVariable->SetResource(pTexture->GetSRV());
+}
+
+void dae::Effect::SetGlossinessMap(const Texture* pTexture)
+{
+	if (m_pGlossinessMapVariable == nullptr) return;
+
+	m_pGlossinessMapVariable->SetResource(pTexture->GetSRV());
+}
+
+void dae::Effect::SetWorldMatrix(const Matrix& worldMatrix)
+{
+	m_pMatWorldMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&worldMatrix));
+}
+
+void dae::Effect::SetInvViewMatrix(const Matrix& invViewMatrix)
+{
+	m_pMatInverseViewMatrixVariable->SetMatrix(reinterpret_cast<const float*>(&invViewMatrix));
 }
