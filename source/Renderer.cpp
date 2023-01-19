@@ -26,6 +26,14 @@ namespace dae {
 			std::cout << "DirectX initialization failed!\n";
 		}
 
+		const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
+
+		m_pCamera = std::make_unique<Camera>();
+
+		m_pCamera->Initialize(aspectRatio, 45, Vector3{ 0, 0, -50 });
+
+		SDL_SetRelativeMouseMode(static_cast<SDL_bool>(m_IsCamLocked));
+
 		//initialize mesh data & mesh
 
 		std::vector<Vertex> vertices{};
@@ -33,7 +41,7 @@ namespace dae {
 
 		Utils::ParseOBJ("Resources/vehicle.obj", vertices, indices);
 
-		m_pMesh = std::make_unique<Mesh>( m_pDevice, vertices, indices );
+		m_pMesh = std::make_unique<Mesh>( m_pDevice, vertices, indices, EffectType::shaded );
 
 		const Texture* pTexture{ Texture::LoadFromFile("Resources/vehicle_diffuse.png", m_pDevice) };
 
@@ -59,14 +67,16 @@ namespace dae {
 
 		delete pTexture;
 
-		const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
-		m_pCamera = std::make_unique<Camera>();
+		Utils::ParseOBJ("Resources/fireFX.obj", vertices, indices);
 
-		m_pCamera->Initialize(aspectRatio, 45, Vector3{ 0, 0, -50 });
+		m_pFireMesh = std::make_unique<Mesh>(m_pDevice, vertices, indices, EffectType::transparent );
 
-		SDL_SetRelativeMouseMode(static_cast<SDL_bool>(m_IsCamLocked));
+		pTexture = Texture::LoadFromFile("Resources/fireFX_diffuse.png", m_pDevice);
 
+		m_pFireMesh->SetDiffuse(pTexture);
+
+		delete pTexture;
 
 	}
 
@@ -97,7 +107,12 @@ namespace dae {
 		m_pMesh->SetWorldMatrix();
 		m_pMesh->SetInvViewMatrix(m_pCamera->invViewMatrix);
 
+		m_pFireMesh->SetProjectionMatrix(m_pCamera->viewMatrix * m_pCamera->projectionMatrix);
+		m_pFireMesh->SetWorldMatrix();
+		m_pFireMesh->SetInvViewMatrix(m_pCamera->invViewMatrix);
+
 		m_pMesh->SetRotationY(m_RotationSpeed * pTimer->GetElapsed());
+		m_pFireMesh->SetRotationY(m_RotationSpeed * pTimer->GetElapsed());
 
 	}
 
@@ -114,6 +129,7 @@ namespace dae {
 
 		//2. Set Pipeline + Invoke DrawCalls (==Render)
 		m_pMesh->Render(m_pDeviceContext);
+		m_pFireMesh->Render(m_pDeviceContext);
 
 		//3. Present Backbuffer (Swap)
 		m_pSwapChain->Present(0, 0);

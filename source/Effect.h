@@ -5,52 +5,56 @@ namespace dae
 
 	class Texture;
 
-	class Effect final
+	class Effect
 	{
-	public:
+		public:
 
-		enum class SamplerStates
-		{
-			point,
-			linear,
-			anisotropic
-		};
+			enum class SamplerStates
+			{
+				point,
+				linear,
+				anisotropic
+			};
 
-		Effect(ID3D11Device* pDevice, const std::wstring& assetFile);
-		~Effect();
+			explicit Effect(ID3D11Device* pDevice, const std::wstring& assetFile);
 
-		Effect(const Effect&) = delete;
-		Effect(Effect&&) noexcept = delete;
-		Effect& operator=(const Effect&) = delete;
-		Effect& operator=(Effect&&) noexcept = delete;
+			virtual ~Effect();
 
-		static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
+			Effect(const Effect&) = delete;
+			Effect(Effect&&) noexcept = delete;
+			Effect& operator=(const Effect&) = delete;
+			Effect& operator=(Effect&&) noexcept = delete;
 
-		ID3DX11Effect* GetEffect() const
-		{
-			return m_pEffect;
-		}
+			static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 
-		ID3DX11EffectTechnique* GetTechnique() const
-		{
-			return m_pTechnique;
-		}
+			ID3DX11Effect* GetEffect() const
+			{
+				return m_pEffect;
+			}
 
-		void SetProjectionMatrix(const Matrix& matrix) const;
+			ID3DX11EffectTechnique* GetTechnique() const
+			{
+				return m_pTechnique;
+			}
 
-		void SetDiffuseMap(const Texture* pTexture) const;
+			void SetProjectionMatrix(const Matrix& matrix) const;
 
-		void SetNormalMap(const Texture* pTexture) const;
+			void SetInvViewMatrix(const Matrix& invViewMatrix) const;
 
-		void SetSpecularMap(const Texture* pTexture) const;
+			void SetWorldMatrix(const Matrix& worldMatrix) const;
 
-		void SetGlossinessMap(const Texture* pTexture) const;
 
-		void SetWorldMatrix(const Matrix& worldMatrix) const;
+			void SetDiffuseMap(const Texture* pTexture) const;
 
-		void SetInvViewMatrix(const Matrix& invViewMatrix) const;
+			 
+			virtual void SetNormalMap(const Texture* pTexture) const = 0;
+			
+			virtual void SetSpecularMap(const Texture* pTexture) const = 0;
+			
+			virtual void SetGlossinessMap(const Texture* pTexture) const = 0;
 
-		void ToggleSamplerState(ID3D11Device* pDevice, const bool changeState = true)
+			
+			void ToggleSamplerState(ID3D11Device* pDevice, const bool changeState = true)
 		{
 
 			if (changeState)
@@ -89,26 +93,22 @@ namespace dae
 			m_pEffectSamplerVariable->SetSampler(0, m_pSamplerState);
 		}
 
-	private:
+		protected:
 
-		SamplerStates m_currentSampleState{ SamplerStates::point };
+			SamplerStates m_currentSampleState{ SamplerStates::point };
 
-		ID3DX11Effect* m_pEffect{};
-		ID3DX11EffectTechnique* m_pTechnique{};
+			ID3DX11Effect* m_pEffect{};
+			ID3DX11EffectTechnique* m_pTechnique{};
 
-		ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
-		ID3DX11EffectMatrixVariable* m_pMatWorldMatrixVariable{};
-		ID3DX11EffectMatrixVariable* m_pMatInverseViewMatrixVariable{};
+			ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable{};
+			ID3DX11EffectMatrixVariable* m_pMatWorldMatrixVariable{};
+			ID3DX11EffectMatrixVariable* m_pMatInverseViewMatrixVariable{};
 
-		ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable{};
-		ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable{};
-		ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable{};
-		ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVariable{};
+			ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable{};
 
-
-		ID3DX11EffectSamplerVariable* m_pEffectSamplerVariable{};
-		ID3D11SamplerState* m_pSamplerState{};
-		D3D11_SAMPLER_DESC m_SamplerDesc{};
+			ID3DX11EffectSamplerVariable* m_pEffectSamplerVariable{};
+			ID3D11SamplerState* m_pSamplerState{};
+			D3D11_SAMPLER_DESC m_SamplerDesc{};
 
 	};
 

@@ -1,12 +1,24 @@
 #include "pch.h"
 #include "Mesh.h"
 #include "Effect.h"
+#include "EffectShaded.h"
+#include "EffectTransparent.h"
 
 namespace dae
 {
-	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
-		: m_pEffect{ new Effect{ pDevice, L"Resources/PosTex3D.fx" } }
+	Mesh::Mesh(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const EffectType typeEffect)
 	{
+
+		switch (typeEffect)
+		{
+			case EffectType::shaded:
+				m_pEffect = new EffectShaded( pDevice, L"./Resources/PosTex3D.fx" );
+				break;
+			case EffectType::transparent:
+				m_pEffect = new EffectTransparent( pDevice, L"./Resources/PosTransparent3D.fx" );
+				break;
+		}
+
 		//Get Technique from Effect
 		m_pTechnique = m_pEffect->GetTechnique();
 

@@ -63,6 +63,8 @@ namespace dae
 		ID3D11Resource* m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
 
+		std::unique_ptr<Mesh> m_pFireMesh{};
+
 		float m_RotationSpeed{ 90 * TO_RADIANS };
 
 	};

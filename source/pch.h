@@ -22,3 +22,9 @@
 // Framework Headers
 #include "Timer.h"
 #include "Math.h"
+
+enum class EffectType
+{
+	shaded,
+	transparent
+};
